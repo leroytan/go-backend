@@ -16,10 +16,10 @@ go build
 ./go-backend.exe
 ```
 ### Step 2:
-Create a .env file
-This file will handle sensitive information
-Since this is a sample project, I have included a .env.template file
-Change the .env.template file to a .env file
+Create a .env file <br/>
+This file will handle sensitive information <br/>
+Since this is a sample project, I have included a .env.template file <br/>
+Change the .env.template file to a .env file <br/>
 
 
 
