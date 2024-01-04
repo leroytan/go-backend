@@ -117,6 +117,14 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, 60*60, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{})
 }
+func Signout(c *gin.Context) {
+	//Authorize user already done by middleware
+
+	//Set cookie to expiry
+	c.SetCookie("Authorization", "", -1, "", "", false, true)
+	//Response
+	c.JSON(http.StatusOK, gin.H{})
+}
 
 func Validate(c *gin.Context) {
 	user, _ := c.Get("user")

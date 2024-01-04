@@ -14,7 +14,10 @@ func init() {
 func main() {
 	initializers.DB.AutoMigrate(&models.Post{})
 	initializers.DB.AutoMigrate(&models.User{})
+	initializers.DB.AutoMigrate(&models.Course{})
 	initializers.DB.AutoMigrate(&models.Category{})
 	initializers.DB.AutoMigrate(&models.Subcategory{})
+	initializers.DB.AutoMigrate(&models.PollsOptions{})
+	initializers.DB.AutoMigrate(&models.PollsOptionsVotes{})
 
 }

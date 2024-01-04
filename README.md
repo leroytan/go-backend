@@ -1,4 +1,26 @@
 # go-backend
- backend server built with go
+ This is a backend server built with go, it is a webforum that supports basic CRUD, authentication, and tagging(WIP).
 
- sqlite driver requires GCC
+## Note:
+This is a sample project!
+
+## Requirements
+Download go from https://go.dev/dl/
+
+
+## To run the server:
+### Step 1:
+In your terminal, run the following commands:
+```
+go build
+./go-backend.exe
+```
+### Step 2:
+Create a .env file
+This file will handle sensitive information
+Since this is a sample project, I have included a .env.template file
+Change the .env.template file to a .env file
+
+
+
+
