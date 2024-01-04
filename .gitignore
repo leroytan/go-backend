@@ -1,2 +1,2 @@
-.env
-go-backend.exe
+*.env
+*.exe
