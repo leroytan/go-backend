@@ -1,27 +1,46 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"time"
+	"unicode"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/leroytan/go-backend/initializers"
 	"github.com/leroytan/go-backend/models"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func Signup(c *gin.Context) {
 	//get email/password from req body
 	var body struct {
 		Email    string
+		Username string
 		Password string
 	}
-
-	if c.Bind(&body) != nil {
+	if c.BindJSON(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
+		})
+		return
+	}
+	//validate username
+	usernameerr := validateUsername(body.Username)
+	if usernameerr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": usernameerr.Error(),
+		})
+		return
+	}
+	//validate password
+	passworderr := validatePassword(body.Password)
+	if passworderr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": passworderr.Error(),
 		})
 		return
 	}
@@ -34,7 +53,7 @@ func Signup(c *gin.Context) {
 		})
 	}
 	//Create the user
-	user := models.User{Email: body.Email, Password: string(hash)}
+	user := models.User{Email: body.Email, Username: body.Username, Password: string(hash), Posts: []models.Post{}}
 
 	result := initializers.DB.Create(&user)
 
@@ -54,7 +73,7 @@ func Login(c *gin.Context) {
 		Password string
 	}
 
-	if c.Bind(&body) != nil {
+	if c.BindJSON(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
 		})
@@ -81,7 +100,7 @@ func Login(c *gin.Context) {
 	//Generate a jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+		"exp": time.Now().Add(time.Hour).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
@@ -95,7 +114,7 @@ func Login(c *gin.Context) {
 	}
 	//Send it back
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorisation", tokenString, 60*60*24*30, "", "", false, true)
+	c.SetCookie("Authorization", tokenString, 60*60, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -104,4 +123,56 @@ func Validate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": user,
 	})
+}
+
+// Retrieve user list with eager loading posts
+func GetAllPosts(db *gorm.DB) ([]models.User, error) {
+	var users []models.User
+	err := db.Model(&models.User{}).Preload("Posts").Find(&users).Error
+	return users, err
+}
+
+func validateUsername(username string) error {
+	//check username for only alphaNumeric character
+	for _, char := range username {
+		if !unicode.IsLetter(char) && !unicode.IsNumber(char) {
+			return errors.New("Username can only consists of alphabets and numbers")
+		}
+
+	}
+	//check username length
+	if len(username) >= 4 && len(username) <= 15 {
+		return nil
+	} else {
+		return errors.New("Username length must be 4-15")
+	}
+}
+func validatePassword(password string) error {
+	//passwords must contain alphabets, numbers, and punctuation
+	var containsNumber = false
+	var containsalphabets = false
+	var containspunctuation = false
+	for _, char := range password {
+		if unicode.IsLetter(char) {
+			containsalphabets = true
+			continue
+		}
+		if unicode.IsNumber(char) {
+			containsNumber = true
+			continue
+		}
+		if unicode.IsPunct(char) {
+			containspunctuation = true
+			continue
+		}
+	}
+	if !containsNumber || !containsalphabets || !containspunctuation {
+		return errors.New("password must contain alphabets, numbers, and punctuation")
+	}
+	//check username length
+	if len(password) >= 7 {
+		return nil
+	} else {
+		return errors.New("password length must be at least 7")
+	}
 }

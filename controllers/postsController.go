@@ -8,16 +8,18 @@ import (
 	"github.com/leroytan/go-backend/models"
 )
 
-// creates a new post
+// creates a new post after authorization from middleware
 func PostsCreate(c *gin.Context) {
-	//get data off req body
+	//get data from req body and userid from jwt
+	var user models.User
 	var body struct {
-		Body  string
-		Title string
+		Title   string
+		Content string
 	}
-	c.Bind(&body)
+	user = c.MustGet("user").(models.User)
+	c.BindJSON(&body)
 	//create post
-	post := models.Post{Title: body.Title, Body: body.Body}
+	post := models.Post{Title: body.Title, Content: body.Content, UserID: user.ID}
 
 	result := initializers.DB.Create(&post)
 	//response
@@ -70,18 +72,28 @@ func PostIndex(c *gin.Context) {
 func PostsUpdate(c *gin.Context) {
 	//get id from url
 	postid := c.Param("id")
+
 	//get data from req body
+	var user models.User
 	var body struct {
-		Body  string
-		Title string
+		Title   string
+		Content string
 	}
-	c.Bind(&body)
+	user = c.MustGet("user").(models.User)
+	c.BindJSON(&body)
+
 	//Retrieve the post we are updating from database
 	var post models.Post
 	initializers.DB.Find(&post, postid)
 
+	//Check if user is post creator
+	if post.UserID != user.ID {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
 	//update it
-	result := initializers.DB.Model(&post).Updates(models.Post{Title: body.Title, Body: body.Body})
+	result := initializers.DB.Model(&post).Updates(models.Post{Title: body.Title, Content: body.Content})
 
 	//response
 	if result.Error != nil {
