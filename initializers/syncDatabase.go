@@ -5,5 +5,13 @@ import (
 )
 
 func SyncDatabase() {
-	DB.AutoMigrate(&models.User{}, &models.Post{}, &models.Course{}, &models.Category{}, &models.Subcategory{})
+	DB.AutoMigrate(&models.Post{})
+	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(&models.Role{})
+	DB.AutoMigrate(&models.Course{})
+	DB.AutoMigrate(&models.Category{})
+	DB.AutoMigrate(&models.Subcategory{})
+	DB.AutoMigrate(&models.PollsOptions{})
+	DB.AutoMigrate(&models.PollsOptionsVotes{})
+
 }

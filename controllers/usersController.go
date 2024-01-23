@@ -53,7 +53,7 @@ func Signup(c *gin.Context) {
 		})
 	}
 	//Create the user
-	user := models.User{Email: body.Email, Username: body.Username, Password: string(hash), Posts: []models.Post{}}
+	user := models.User{Email: body.Email, Username: body.Username, Password: string(hash), Posts: []models.Post{}, RoleID: 1}
 
 	result := initializers.DB.Create(&user)
 
@@ -127,9 +127,17 @@ func Signout(c *gin.Context) {
 }
 
 func Validate(c *gin.Context) {
-	user, _ := c.Get("user")
+	var user models.User
+	data, _ := c.Get("user")
+	user = data.(models.User)
 	c.JSON(http.StatusOK, gin.H{
-		"message": user,
+		"user": gin.H{
+			"ID":       user.ID,
+			"Email":    user.Email,
+			"Username": user.Username,
+			"Posts":    user.Posts,
+			"RoleID":   user.RoleID,
+		},
 	})
 }
 
@@ -183,4 +191,68 @@ func validatePassword(password string) error {
 	} else {
 		return errors.New("password length must be at least 7")
 	}
+}
+
+func Getuserdetails(c *gin.Context) {
+	//Get id from url
+	userid := c.Param("id")
+	//Get user courses
+	var user models.User
+
+	err2 := initializers.DB.Model(&models.User{}).First(&user, userid).Error
+	if err2 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "cannot get user",
+		})
+		return
+	}
+	//Response
+	c.JSON(http.StatusOK, gin.H{
+		"user": gin.H{
+			"ID":       user.ID,
+			"Username": user.Username,
+			"Posts":    user.Posts,
+			"RoleID":   user.RoleID,
+			//Doesnt return email because it is part of privacy
+		}})
+}
+func Getallusers(c *gin.Context) {
+
+	var users []models.User
+	initializers.DB.Find(&users)
+	usersarray := []models.User{}
+
+	for _, user := range users {
+		usersarray = append(usersarray, models.User{
+			Model:    user.Model,
+			Username: user.Username,
+			RoleID:   user.RoleID,
+			Courses:  user.Courses,
+		})
+
+	}
+	//Response
+	c.JSON(http.StatusOK, gin.H{
+		"users": usersarray,
+	})
+}
+func Getcourseusers(c *gin.Context) {
+	//Get id from url
+	courseid := c.Param("courseid")
+	usersarray := []models.User{}
+	var course models.Course
+	initializers.DB.Preload("Users").Find(&course, courseid)
+	for _, user := range course.Users {
+		usersarray = append(usersarray, models.User{
+			Model:    user.Model,
+			Username: user.Username,
+			RoleID:   user.RoleID,
+			Courses:  user.Courses,
+		})
+
+	}
+	//Response
+	c.JSON(http.StatusOK, gin.H{
+		"users": usersarray,
+	})
 }

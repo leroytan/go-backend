@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 	"github.com/leroytan/go-backend/models"
 )
 
-// Middleware for any operations that requires authorization
+// Middleware for any operations that requires logging in
 func RequireAuth(c *gin.Context) {
 	//Get the cookie off req
 	tokenString, err := c.Cookie("Authorization")
@@ -54,4 +55,33 @@ func RequireAuth(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
+}
+
+// Middleware for any operations that require user to be in course
+func CourseAuth(c *gin.Context) {
+	//get data from url
+	courseid, _ := strconv.Atoi(c.Param("courseid"))
+	//check that user is authorized to access course
+	var course models.Course
+
+	userinfo, _ := c.Get("user")
+	user := userinfo.(models.User)
+	initializers.DB.Model(&models.Course{}).Preload("Users", &user).First(&course, courseid)
+	//user was not authorized to access
+	if len(course.Users) != 1 {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	//Continue
+	c.Next()
+}
+
+// Middleware for any operations that require user to be an admin
+func AdminAuth(c *gin.Context) {
+	//check that the user is admin
+	userinfo, _ := c.Get("user")
+	user := userinfo.(models.User)
+	if user.RoleID < 2 {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	c.Next()
 }
