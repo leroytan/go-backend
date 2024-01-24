@@ -4,7 +4,7 @@
 ## Note:
 This is a sample project!
 The frontend of the project can be found at : [https://github.com/leroytan/react-frontend](https://github.com/leroytan/react-frontend).\
-The deployment of the project can be found at [forunme.leroymx.com](forunme.leroymx.com).
+The deployment of the project can be found at [https://www.forunme.leroymx.com/](https://www.forunme.leroymx.com/).
 
 ## Requirements
 Download go from https://go.dev/dl/
