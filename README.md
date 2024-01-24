@@ -3,6 +3,8 @@
 
 ## Note:
 This is a sample project!
+The frontend of the project can be found at : [https://github.com/leroytan/react-frontend](https://github.com/leroytan/react-frontend).
+The deployment of the project can be found at [forunme.leroymx.com](forunme.leroymx.com).
 
 ## Requirements
 Download go from https://go.dev/dl/
@@ -15,11 +17,19 @@ In your terminal, run the following commands:
 go build
 ./go-backend.exe
 ```
+
 ### Step 2:
+Create a sql database.
+E.g. postgres/sqlite/mysql
+
+### Step 3:
 Create a .env file <br/>
 This file will handle sensitive information <br/>
 Since this is a sample project, I have included a .env.template file <br/>
 Change the .env.template file to a .env file <br/>
+Replace the fields with your own database, port, frontend and secret key (for jwt authorization).
+
+
 
 
 
