@@ -3,7 +3,7 @@
 
 ## Note:
 This is a sample project!
-The frontend of the project can be found at : [https://github.com/leroytan/react-frontend](https://github.com/leroytan/react-frontend).
+The frontend of the project can be found at : [https://github.com/leroytan/react-frontend](https://github.com/leroytan/react-frontend).\
 The deployment of the project can be found at [forunme.leroymx.com](forunme.leroymx.com).
 
 ## Requirements
@@ -23,10 +23,10 @@ Create a sql database.
 E.g. postgres/sqlite/mysql
 
 ### Step 3:
-Create a .env file <br/>
-This file will handle sensitive information <br/>
-Since this is a sample project, I have included a .env.template file <br/>
-Change the .env.template file to a .env file <br/>
+Create a .env file \
+This file will handle sensitive information \
+Since this is a sample project, I have included a .env.template file \
+Change the .env.template file to a .env file \
 Replace the fields with your own database, port, frontend and secret key (for jwt authorization).
 
 
