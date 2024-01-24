@@ -36,8 +36,14 @@ func PostsCreate(c *gin.Context) {
 		})
 		return
 	}
+
 	//create post
-	post := models.Post{Title: body.Title, Content: body.Content, SubcategoryID: uint(subcategoryid), ParentpostID: &body.ParentpostID, UserID: user.ID}
+	var post models.Post
+	if body.ParentpostID == 0 {
+		post = models.Post{Title: body.Title, Content: body.Content, SubcategoryID: uint(subcategoryid), UserID: user.ID}
+	} else {
+		post = models.Post{Title: body.Title, Content: body.Content, ParentpostID: &body.ParentpostID, SubcategoryID: uint(subcategoryid), UserID: user.ID}
+	}
 
 	result := initializers.DB.Create(&post)
 	//create polloptions
@@ -45,7 +51,7 @@ func PostsCreate(c *gin.Context) {
 		{Title: "Upvote", PostID: post.ID, PollsOptionsVotes: []models.PollsOptionsVotes{}},
 		{Title: "Downvote", PostID: post.ID, PollsOptionsVotes: []models.PollsOptionsVotes{}},
 	}
-	initializers.DB.Create(polloptions)
+	initializers.DB.Create(&polloptions)
 	//response
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -78,7 +84,7 @@ func PostsAll(c *gin.Context) {
 
 	//Retrieve 15 posts from database
 	var posts []models.Post
-	initializers.DB.Limit(15).Where("parentpost_id = ? AND subcategory_id = ?", 0, subcategoryid).Find(&posts)
+	initializers.DB.Limit(15).Where("parentpost_id IS NULL AND subcategory_id = ?", subcategoryid).Find(&posts)
 
 	//respond with them
 	c.JSON(http.StatusOK, gin.H{
